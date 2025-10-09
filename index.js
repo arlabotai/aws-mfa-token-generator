@@ -1,4 +1,4 @@
-import { STSClient, GetSessionTokenCommand } from "@aws-sdk/client-sts";
+import AWS from "aws-sdk";
 import fs from "fs";
 import os from "os";
 import path from "path";
@@ -45,39 +45,38 @@ async function main() {
         process.exit(1);
     }
 
-    // 1️⃣ override [default] with credentials from .env
-    updateAwsCredentials({
-        aws_access_key_id: process.env.ACCESS_KEY_ID,
-        aws_secret_access_key: process.env.SECRET_ACCESS_KEY
+    // 2️⃣ get MFA token
+    const tokenCode = await askQuestion("Enter your MFA code: ");    
+
+    const sts = new AWS.STS({
+        region: process.env.AWS_REGION,
+        accessKeyId: process.env.ACCESS_KEY_ID,
+        secretAccessKey: process.env.SECRET_ACCESS_KEY
     });
 
-    console.log("🔹 [default] updated with credentials from .env");
-
-    // 2️⃣ get MFA token
-    const tokenCode = await askQuestion("Enter your MFA code: ");
-    console.log({ serial, tokenCode });
-
-    const sts = new STSClient({ region: process.env.AWS_REGION || "us-east-1" });
-    const command = new GetSessionTokenCommand({
+    sts.getSessionToken({
         SerialNumber: serial,
         TokenCode: tokenCode
+    }, (err, data) => {
+        if (err) {
+            console.error("❌ Error getting MFA session token:", err);
+            process.exit(1);
+        }
+
+        if (!data.Credentials) {
+            console.error("❌ Could not obtain MFA credentials");
+            process.exit(1);
+        }
+
+        // 3️⃣ override [default] with temporary MFA credentials
+        updateAwsCredentials({
+            aws_access_key_id: data.Credentials.AccessKeyId,
+            aws_secret_access_key: data.Credentials.SecretAccessKey,
+            aws_session_token: data.Credentials.SessionToken
+        });
+
+        console.log("✅ MFA credentials saved in [default] of ~/.aws/credentials (valid ~12h)");
     });
-
-    const { Credentials } = await sts.send(command);
-
-    if (!Credentials) {
-        console.error("❌ Could not obtain MFA credentials");
-        process.exit(1);
-    }
-
-    // 3️⃣ override [default] with temporary MFA credentials
-    updateAwsCredentials({
-        aws_access_key_id: Credentials.AccessKeyId,
-        aws_secret_access_key: Credentials.SecretAccessKey,
-        aws_session_token: Credentials.SessionToken
-    });
-
-    console.log("✅ MFA credentials saved in [default] of ~/.aws/credentials (valid ~12h)");
 }
 
 main().catch(err => console.error(err));
