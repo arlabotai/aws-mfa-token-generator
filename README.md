@@ -31,6 +31,7 @@ AWS_REGION=us-east-1
    ```sh
    npm run start
    ```
+3. Close all <arla> projects in your editor (VS Code) to reset the terminals and clear any cached profiles from the session.
 
 ## Additional Documentation
 
@@ -50,6 +51,8 @@ This project generates temporary AWS access tokens (access key, secret key, and 
 ---
 
 ## Common errors:
+
+0. Close all <arla> projects in your editor (VS Code) to reset the terminals and clear any cached profiles from the session.
 
 1. `AccessDenied: User: arn:aws:iam::<ACCOUNT_ID>:user/user@example.com is not authorized to perform: s3:GetObject on resource: "arn:aws:s3:::<aws-resources>/<aws-resources-id>" with an explicit deny in an identity-based policy`
 
