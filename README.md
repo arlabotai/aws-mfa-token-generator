@@ -10,13 +10,13 @@ To run the project, you must create a `.env` file in the root directory with the
 ```
 AWS_ACCESS_KEY_ID=your_access_key_id
 AWS_SECRET_ACCESS_KEY=your_secret_access_key
-AWS_MFA_SERIAL=arn:aws:iam::123456789012:mfa/your-user
+AWS_MFA_ARN=arn:aws:iam::123456789012:mfa/your-user
 AWS_REGION=us-east-1
 ```
 
 - `AWS_ACCESS_KEY_ID`: Your AWS Access Key ID.
 - `AWS_SECRET_ACCESS_KEY`: Your AWS Secret Access Key.
-- `AWS_MFA_SERIAL`: ARN of the MFA device associated with your AWS user.
+- `AWS_MFA_ARN`: ARN of the MFA device associated with your AWS user.
 - `AWS_REGION`: AWS region to use (e.g., `us-east-1`).
 
 **Note:** Do not share your `.env` file or credentials.

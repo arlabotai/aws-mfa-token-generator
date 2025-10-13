@@ -50,8 +50,8 @@ async function main() {
 
     const sts = new AWS.STS({
         region: process.env.AWS_REGION,
-        accessKeyId: process.env.ACCESS_KEY_ID,
-        secretAccessKey: process.env.SECRET_ACCESS_KEY
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
     });
 
     sts.getSessionToken({
