@@ -68,9 +68,16 @@ This project generates temporary AWS access tokens (access key, secret key, and 
    **Solution**: Change the configuration to use `[default]`.
    In the CLI, run:
 
+   **Windows**
    ```bash
    $env:AWS_PROFILE = "default"
    ```
+
+   **mac/linux**
+   ```bash
+   export AWS_PROFILE=default
+   ```
+
 
    ![MFA code example](doc/AWS_PROFILE_erro.png)
 
