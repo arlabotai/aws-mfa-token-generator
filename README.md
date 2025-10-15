@@ -61,6 +61,7 @@ This project generates temporary AWS access tokens (access key, secret key, and 
    **Solution**: Run the project **aws-mfa-token-generator** using your MFA code to generate a new token valid for 12 hours.
 
 2. `✈CredentialsProviderError: Could not load credentials from any providers`
+2.1 `Error [CredentialsError]: Missing credentials in config, if using AWS_CONFIG_FILE, set AWS_SDK_LOAD_CONFIG=1`
 
    The configuration to load environment variables into the profile can’t be found.
    In this example, it’s using the `[mfa]` configuration by default — you can check it with the command `$env:AWS_PROFILE`.
