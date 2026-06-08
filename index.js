@@ -4,6 +4,7 @@ import os from "os";
 import path from "path";
 import readline from "readline";
 import dotenv from "dotenv";
+import { authenticator } from "otplib";
 
 dotenv.config();
 
@@ -38,6 +39,15 @@ ${newValues.aws_session_token ? `aws_session_token = ${newValues.aws_session_tok
     fs.writeFileSync(awsCredsPath, cleanedCreds + section, { encoding: "utf8" });
 }
 
+function totpFromEnv() {
+    const raw = process.env.AWS_MFA_TOTP_SECRET;
+    if (!raw) return null;
+    const secret = raw.replace(/\s/g, "").trim();
+    if (!secret) return null;
+    authenticator.options = { digits: 6, step: 30 };
+    return authenticator.generate(secret);
+}
+
 async function main() {
     const serial = process.env.AWS_MFA_ARN;
     if (!serial) {
@@ -45,8 +55,17 @@ async function main() {
         process.exit(1);
     }
 
-    // 2️⃣ get MFA token
-    const tokenCode = await askQuestion("Enter your MFA code: ");    
+    let tokenCode = totpFromEnv();
+    if (tokenCode) {
+        console.log("🔐 MFA: usando TOTP desde AWS_MFA_TOTP_SECRET (.env)");
+    } else {
+        tokenCode = await askQuestion("Enter your MFA code: ");
+    }
+    tokenCode = String(tokenCode).replace(/\s/g, "").trim();
+    if (!tokenCode) {
+        console.error("❌ Código MFA vacío");
+        process.exit(1);
+    }
 
     const sts = new AWS.STS({
         region: process.env.AWS_REGION,
@@ -68,7 +87,6 @@ async function main() {
             process.exit(1);
         }
 
-        // 3️⃣ override [default] with temporary MFA credentials
         updateAwsCredentials({
             aws_access_key_id: data.Credentials.AccessKeyId,
             aws_secret_access_key: data.Credentials.SecretAccessKey,
