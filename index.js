@@ -4,6 +4,7 @@ import os from "os";
 import path from "path";
 import readline from "readline";
 import dotenv from "dotenv";
+import { generateTotp } from "./gen-totp.js";
 
 dotenv.config();
 
@@ -45,8 +46,7 @@ async function main() {
         process.exit(1);
     }
 
-    // 2️⃣ get MFA token
-    const tokenCode = await askQuestion("Enter your MFA code: ");    
+    const { code: tokenCode } = generateTotp();  
 
     const sts = new AWS.STS({
         region: process.env.AWS_REGION,
